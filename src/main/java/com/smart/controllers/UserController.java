@@ -16,6 +16,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +38,9 @@ import com.smart.helper.Message;
 @RequestMapping("/user")
 public class UserController {
 	private static final int CONTACTS_PER_PAGE = 4;
+
+	@Autowired
+	private BCryptPasswordEncoder passw;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -235,5 +239,27 @@ public class UserController {
 	public String yourProfilePage(Model model) {
 		model.addAttribute("title", "Profile Page");
 		return "normal/profile";
+	}
+
+	@RequestMapping("/settings")
+	public String setting(Model model) {
+		model.addAttribute("title", "Settings");
+		return "normal/settings";
+	}
+
+	@PostMapping("/change-password")
+	public String changePassword(Principal principal,@RequestParam("old") String oldp, @RequestParam("new") String newp, HttpSession session) {
+		String name = principal.getName();
+		User userbyUserName = this.userRepository.getUserByEmail(name);
+		if(this.passw.matches(oldp, userbyUserName.getPassword())) {
+			userbyUserName.setPassword(this.passw.encode(newp));
+			this.userRepository.save(userbyUserName);
+			session.setAttribute("message",new Message("Updated successfully","alert-success"));
+		}
+		else {
+			session.setAttribute("message",new Message("Password not Matched","alert-danger"));
+			return "redirect:/user/settings";
+		}
+		return "redirect:/user/index";
 	}
 }

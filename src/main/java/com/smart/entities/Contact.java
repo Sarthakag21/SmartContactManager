@@ -44,5 +44,6 @@ public class Contact {
 
 	@ManyToOne
 	@JoinColumn(name = "id")
+	@JsonIgnore
 	private User user;
 }

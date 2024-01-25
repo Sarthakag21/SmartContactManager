@@ -1,5 +1,3 @@
-console.log("this is script file");
-
 const toggleSidebar = () => {
     if($(".sidebar").is(":visible")) {
         //true
@@ -13,42 +11,33 @@ const toggleSidebar = () => {
         $(".content").css("margin-left", "20%");
     }
 };
-
-const search = () => {
-    //console.log("searching....");
-
+const search=()=>{
     let query = $("#search-input").val();
 
-    if(query == ""){
+    if(query=="")
+    {
         $(".search-result").hide();
     }
-    else{
-        //search
-        console.log(query);
+    else
+    {
+        //sending request to server
+        let url=`http://localhost:8080/search/${query}`;
 
-        //sending request to the server
+        fetch(url).then((response)=>
 
-        let url=`http://localhost:8081/search/${query}`;
-    
-        fetch(url)
-        .then((response) => {
+        {
             return response.json();
-        })
-        .then((data) => {
-            //data.......
-            console.log(data);
-
-            let text = `<div class='list-group'>`;
-
-            data.forEach((contact) => {
-                text+= `<a href='/user/${contact.cId}/contact' class='list-group-item list-group-action'> ${contact.name} </a>`;
+        }).then((data)=>
+        {
+            // console.log(data);
+            let text=`<div class='list-group'>`;
+            data.forEach((contact)=>
+            {
+                text+=`<a href="/user/contact/${contact.cId}" class='list-group-item list-group-item-action'>${contact.name} </a>`;
             });
-
-            text+= `</div>`;
-
+            text+=`</div>`;
             $(".search-result").html(text);
-            $(".search-result").show();
         });
-
+        $(".search-result").show();
     }
-};
+}
